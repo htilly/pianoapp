@@ -1,151 +1,103 @@
 ---
-title: Support
+layout: default
 permalink: /support/
+title: Support - Follow The Tune
 ---
 
-# Support för Piano Practice
+# Support for Follow The Tune
 
-Piano Practice visas som **Pianoskola** på enheten. Här hittar du svar på vanliga frågor och lösningar på problem.
+Can't find the answer here? Email [code@tilly.se](mailto:code@tilly.se) and tell us which device you use and what happened.
 
-*Need help in English? Email [code@tilly.se](mailto:code@tilly.se).*
+## How do I add my own songs?
 
-**Kontakt:** [code@tilly.se](mailto:code@tilly.se) · **[Sekretesspolicy](https://htilly.github.io/pianoapp/privacy/)**
+Tap **Add song** (**+** on iPhone), then either:
 
-## Vanliga frågor
+- **Choose file** to pick a MIDI file (.mid) or an ABC file (.abc or .txt) from the Files app
+- **Paste** to paste ABC notation, or a MIDI file as base64 or hex
 
-### Hur ansluter jag mitt piano eller keyboard?
+Then check the hands and tap **Save**. There are no per-song fees. Opening files from other apps or the share sheet is not supported yet, so save the file to Files first.
 
-**Via USB:**
-1. Anslut instrumentet med en USB-kabel (USB-C, eller Apples Lightning-till-USB-kameraadapter)
-2. Appen hittar det automatiskt
+## How do I connect my piano?
 
-**Via Bluetooth:**
-1. Slå på Bluetooth-MIDI på instrumentet (se dess manual)
-2. Öppna **Inställningar** i appen och tryck på **Anslut Bluetooth-piano**
-3. Välj ditt instrument i listan
+- **USB:** connect the piano with a USB cable or adapter. It is detected automatically.
+- **Bluetooth:** open **Settings** in the app and tap **Connect Bluetooth piano**. Pair your piano from inside the app rather than in the iOS Settings app.
 
-Parkoppla **inte** instrumentet under enhetens vanliga Bluetooth-inställningar.
+If nothing shows up, make sure MIDI is switched on in the piano's own settings, and tap **Search again** in the app's Settings.
 
-### Vilka format stöds?
+## Do I need a piano?
 
-- **MIDI-filer** (.mid, .midi)
-- **ABC-notation** (.abc, .txt eller inklistrad text)
-- **MIDI som base64- eller hex-text** (inklistrad)
+A MIDI piano or keyboard gives the best experience. You can also try the app with the on-screen keyboard, which plays one key at a time, so it can't play chords.
 
-### Hur lägger jag till låtar?
+## What are the practice modes?
 
-1. Tryck på **Lägg till låt** (eller **+** på iPhone) i biblioteket
-2. Tryck på **Välj fil** för att hämta en fil från Filer, eller **Klistra in** för noter du har kopierat
-3. Kontrollera handfördelningen och tryck på **Spara**
+- **Wait for me:** the song waits until you press the right keys.
+- **Play along:** the song keeps going in tempo and your timing is scored.
+- **Listen:** the app plays the song and shows the keys.
 
-Filer väljs inifrån appen. Har du fått en fil via mail eller AirDrop sparar du den först i Filer. Att öppna filer direkt från andra appar stöds inte.
+## Can I choose between sheet music and falling notes?
 
-### Appen spelar inget ljud – vad gör jag?
+Yes. Tap **Show** in the practice view, or use **While practicing, show** in Settings. You can see both, sheet music only or falling notes only. On an iPhone in landscape there is room for only one of them.
 
-1. Kontrollera enhetens volym
-2. Öppna **Inställningar** i appen och kontrollera **Appens toner spelas på** och volymreglaget
-3. Tryck på **Testa ljudet**
-4. Om tonerna skickas till pianot: kontrollera att pianots volym är på
-5. Kontrollera hörlurar eller externa högtalare om sådana är anslutna
+## The wrong hand plays the notes. What do I do?
 
-Det du själv spelar på pianot låter alltid från pianot.
+The app guesses the hands from track names and pitch. Open the song's menu (**···**) to change the hands. Each track can be set to right, left, split, accompaniment or silent.
 
-### Hur ändrar jag tempo?
+## There is no sound
 
-Öppna en låt och ändra **Tempo** i övningsvyn (25–150 % av originaltempot). Börja gärna långsamt och öka när det går bra.
+Check the device volume and the volume slider in the app's Settings. Under **Settings**, you can also choose whether the app's notes play on the piano, on the device or on both, and use **Test the sound**.
 
-### Hur väljer jag vilken hand jag övar?
+## Where are my songs stored?
 
-Öppna en låt och välj **Vänster**, **Höger** eller **Båda** i övningsvyn. Slå på **Komp** om du vill att appen ska spela den andra handen.
-
-### Noterna hamnar i fel hand – vad gör jag?
-
-Håll fingret på låten i biblioteket och välj **Ändra händer**. Varje spår eller stämma kan sättas till Höger, Vänster, Dela, Komp eller Tyst.
-
-### Kan jag använda appen utan piano eller keyboard?
-
-Ja. Du kan spela en ton i taget på skärmklaviaturen och lyssna på låtar i läget **Lyssna**. Med ett MIDI-instrument kan du spela riktiga ackord och öva med båda händerna.
-
-### Fungerar appen på både iPhone och iPad?
-
-Ja. iPad ger en större skärm och en bredare klaviatur.
-
-### Sparas mina låtar i molnet?
-
-Nej. Låtar och resultat lagras lokalt på enheten, och appen fungerar utan internetanslutning. Spara gärna kopior av viktiga filer, till exempel i iCloud Drive.
-
-### Hur tar jag bort en låt?
-
-Håll fingret på låten i biblioteket och välj **Ta bort**. Exempellåtar kan återställas under **Inställningar** → **Lägg tillbaka exempel-låtarna**.
+Only on your device. They are not synced between devices, and they are removed if you delete the app. See the [privacy policy]({{ '/privacy/' | relative_url }}).
 
 ---
 
-## Felsökning
+# Support på svenska
 
-### Pianot eller keyboardet hittas inte
+Hittar du inget svar här? Mejla [code@tilly.se](mailto:code@tilly.se) och berätta vilken enhet du använder och vad som hände.
 
-1. Kontrollera att instrumentet är påslaget
-2. Koppla ur och anslut USB-kabeln igen
-3. Tryck på **Sök igen** under **Inställningar** i appen
-4. För Bluetooth: Har du parkopplat instrumentet i enhetens Bluetooth-inställningar, glöm det där och anslut via appen
-5. Starta om appen och enheten
+## Hur lägger jag till egna låtar?
 
-### Appen kraschar
+Tryck på **Lägg till låt** (**+** på iPhone) och välj sedan:
 
-1. Stäng appen helt och öppna den igen
-2. Starta om enheten
-3. Uppdatera till senaste versionen av appen
-4. Kontakta support med iOS-version, enhetsmodell och vad du gjorde när kraschen hände
+- **Välj fil** för att hämta en MIDI-fil (.mid) eller ABC-fil (.abc eller .txt) från appen Filer
+- **Klistra in** för att klistra in ABC-noter, eller en MIDI-fil som base64 eller hex
 
-### Filen går inte att importera
+Kontrollera händerna och tryck på **Spara**. Det kostar inget per låt. Att öppna filer från andra appar eller delningsmenyn stöds inte ännu, så spara filen i Filer först.
 
-1. Kontrollera att filen är i MIDI- eller ABC-format
-2. Testa att öppna filen i en annan app, ifall den är skadad
-3. Testa med en mindre fil
+## Hur ansluter jag mitt piano?
 
-### Noterna ser fel ut
+- **USB:** anslut pianot med USB-kabel eller adapter. Det hittas automatiskt.
+- **Bluetooth:** öppna **Inställningar** i appen och tryck på **Anslut Bluetooth-piano**. Para pianot inifrån appen, inte i inställningarna för iOS.
 
-Vissa MIDI-filer har ovanliga spårkonfigurationer. Prova att justera fördelningen under **Ändra händer**.
+Syns inget? Kontrollera att MIDI är på i pianots egna inställningar och tryck på **Sök igen** i appens inställningar.
 
-### Tonerna känns fördröjda
+## Behöver jag ett piano?
 
-1. Använd USB i stället för Bluetooth för lägst fördröjning
-2. Starta om appen
-3. I läget **Spela med** kan du öka tidsmarginalen under **Inställningar**
+Ett MIDI-piano eller keyboard ger bäst upplevelse. Du kan också prova med skärmklaviaturen, som spelar en tangent i taget och alltså inte kan ta ackord.
 
----
+## Vilka övningslägen finns?
 
-## Systemkrav
+- **Vänta på mig:** låten väntar tills du trycker på rätt tangenter.
+- **Spela med:** låten går i tempo och din timing ger poäng.
+- **Lyssna:** appen spelar låten och visar tangenterna.
 
-- **iOS/iPadOS:** 17.0 eller senare
-- **Enheter:** iPhone och iPad
-- **Instrument (valfritt):** Piano eller keyboard med MIDI över USB eller Bluetooth
+## Kan jag välja mellan noter och fallande noter?
 
----
+Ja. Tryck på **Visa** i övningsvyn, eller använd **Vid övning visas** i inställningarna. Du kan se båda, bara noter eller bara fallande noter. På en liggande iPhone får bara det ena plats.
 
-## Kontakta oss
+## Noterna hamnar på fel hand. Vad gör jag?
 
-Hittar du inte svar här, eller har du förslag på förbättringar? Mejla [code@tilly.se](mailto:code@tilly.se).
+Appen gissar händerna från spårnamn och tonhöjd. Öppna låtens meny (**···**) för att ändra. Varje spår kan vara höger, vänster, delat, komp eller tyst.
 
-Skriv gärna med iOS-version, enhetsmodell, modell på ditt instrument, en beskrivning av problemet och skärmbilder om möjligt.
+## Det hörs inget ljud
 
-Vi strävar efter att svara inom 48 timmar.
+Kontrollera enhetens volym och volymreglaget i appens inställningar. Under **Inställningar** kan du också välja om appens toner ska spelas på pianot, i enheten eller båda, och använda **Testa ljudet**.
+
+## Var sparas mina låtar?
+
+Bara på din enhet. De synkas inte mellan enheter och försvinner om du raderar appen. Läs mer i [sekretesspolicyn]({{ '/privacy/' | relative_url }}).
 
 ---
 
-## Juridisk information
-
-**Sekretesspolicy:** [htilly.github.io/pianoapp/privacy](https://htilly.github.io/pianoapp/privacy/)
-
-**Användarvillkor:** Piano Practice tillhandahålls "i befintligt skick". Vi ansvarar inte för skador som uppstår vid användning av appen.
-
-**Copyright:** © 2026 Henrik Tilly. Alla rättigheter förbehållna.
-
----
-
-## Användbara länkar
-
-- [MIDI-information](https://www.midi.org)
-- [ABC-notation och låtar](https://abcnotation.com)
-
-_Senast uppdaterad: 5 november 2026_
+[Follow The Tune]({{ '/' | relative_url }}) · [Privacy Policy]({{ '/privacy/' | relative_url }})

@@ -1,116 +1,83 @@
 ---
-title: Sekretesspolicy / Privacy Policy
+layout: default
 permalink: /privacy/
+title: Privacy Policy - Follow The Tune
 ---
 
-# Sekretesspolicy för Piano Practice
-
-**Senast uppdaterad:** 5 november 2026
-
-*[English version below](#privacy-policy-english)*
-
-Piano Practice (visas som Pianoskola på enheten) tillhandahålls av Henrik Tilly. Denna sekretesspolicy förklarar hur appen hanterar dina uppgifter.
-
-## Datainsamling
-
-Piano Practice samlar **inte** in någon personlig information. Appen:
-
-- Samlar inte in personuppgifter och kräver inget konto
-- Spårar inte din användning
-- Skickar inte data till externa servrar
-- Använder inga analysverktyg från tredje part
-- Visar ingen reklam
-
-## Lokal datalagring
-
-All data som appen använder lagras **lokalt på din enhet**:
-
-- **Låtar och noter:** Låtar du lägger till
-- **Resultat:** Bästa resultat och antal spelningar per låt
-- **Inställningar:** Till exempel volym, tempo och visning av notnamn
-
-Om du använder iCloud-säkerhetskopiering eller säkerhetskopierar din enhet på annat sätt kan denna data ingå i din egen säkerhetskopia. Du raderar all data genom att ta bort appen från enheten.
-
-## MIDI och Bluetooth
-
-Appen använder MIDI för att ta emot toner från ditt piano eller keyboard och för att skicka toner till det. Bluetooth används endast för att ansluta till ditt MIDI-instrument. Ingen MIDI-data skickas utanför din enhet och dina instrument.
-
-## Ljud
-
-Appen använder enhetens ljudsystem för att spela toner. Appen använder inte mikrofonen och spelar inte in ljud.
-
-## Urklipp och filer
-
-Appen läser urklippet och filer endast när du själv väljer att klistra in noter eller importera en fil.
-
-## Datadelning
-
-Eftersom appen inte samlar in någon data delas **ingen data** med tredje part. Om du har valt att dela diagnostikdata med apputvecklare i enhetens inställningar kan Apple förmedla anonym krasch- och användningsstatistik till utvecklaren.
-
-## Barns integritet
-
-Appen är säker för användare i alla åldrar. Vi samlar inte in data från någon, inklusive barn under 13 år.
-
-## Ändringar i sekretesspolicyn
-
-Vi kan uppdatera denna sekretesspolicy från tid till annan. Eventuella ändringar publiceras på denna sida med ett uppdaterat datum.
-
-## Kontakt
-
-Om du har frågor om denna sekretesspolicy, kontakta oss på: [code@tilly.se](mailto:code@tilly.se)
-
----
-
-## Privacy Policy (English)
+# Privacy Policy for Follow The Tune
 
 **Last updated:** November 5, 2026
 
-Piano Practice (shown as Pianoskola on the device) is provided by Henrik Tilly. This privacy policy explains how the app handles your data.
+Follow The Tune does **not** collect any personal data. The app has no account, no ads, no analytics and no tracking, and it does not send anything over the internet.
 
-### Data Collection
+## Data stored on your device
 
-Piano Practice does **not** collect any personal information. The app:
+These stay on your device and are never sent to us or to anyone else:
 
-- Does not collect personal data and requires no account
-- Does not track your usage
-- Does not send data to external servers
-- Does not use third-party analytics tools
-- Does not display advertising
+- Songs you import
+- Your scores and how many times you have played each song
+- Your settings, including the name you can choose to enter
 
-### Local Data Storage
+They are removed when you delete the app.
 
-All data used by the app is stored **locally on your device**:
+## Permissions
 
-- **Songs and notes:** Songs you add
-- **Results:** Best result and number of plays per song
-- **Settings:** For example volume, tempo and note name display
+- **Bluetooth** is used only to connect to your MIDI piano.
+- **Clipboard:** the app reads the clipboard only when you tap Paste.
+- **Files:** the app opens only the files you choose yourself.
 
-If you use iCloud Backup or otherwise back up your device, this data may be included in your own backup. You can erase all data by deleting the app from your device.
+The app does not use the microphone and does not record sound.
 
-### MIDI and Bluetooth
+## Children
 
-The app uses MIDI to receive notes from your piano or keyboard and to send notes to it. Bluetooth is used only to connect to your MIDI instrument. No MIDI data is sent beyond your device and your instruments.
+The app collects no data from anyone, including children.
 
-### Audio
+## Changes
 
-The app uses the device's audio system to play notes. The app does not use the microphone and does not record audio.
+If this policy changes, the new version is published on this page with a new date.
 
-### Clipboard and Files
+## Contact
 
-The app reads the clipboard and files only when you choose to paste notes or import a file.
+Questions? Email [code@tilly.se](mailto:code@tilly.se).
 
-### Data Sharing
+---
 
-Since the app does not collect any data, **no data** is shared with third parties. If you have chosen to share diagnostics with app developers in your device settings, Apple may pass anonymous crash and usage statistics to the developer.
+# Sekretesspolicy för Follow The Tune
 
-### Children's Privacy
+**Senast uppdaterad:** 5 november 2026
 
-The app is safe for users of all ages. We do not collect data from anyone, including children under 13.
+Follow The Tune samlar **inte** in några personuppgifter. Appen har inget konto, ingen reklam, ingen analys och ingen spårning, och den skickar ingenting över internet.
 
-### Changes to This Policy
+## Data som sparas på din enhet
 
-We may update this privacy policy from time to time. Any changes will be posted on this page with an updated date.
+Det här stannar på din enhet och skickas aldrig till oss eller någon annan:
 
-### Contact
+- Låtar du importerar
+- Dina poäng och hur många gånger du spelat varje låt
+- Dina inställningar, inklusive det namn du kan välja att skriva in
 
-If you have questions about this privacy policy, contact us at: [code@tilly.se](mailto:code@tilly.se)
+Allt tas bort när du raderar appen.
+
+## Behörigheter
+
+- **Bluetooth** används bara för att ansluta till ditt MIDI-piano.
+- **Urklipp:** appen läser urklipp bara när du trycker på Klistra in.
+- **Filer:** appen öppnar bara filer som du själv väljer.
+
+Appen använder inte mikrofonen och spelar inte in ljud.
+
+## Barn
+
+Appen samlar inte in data från någon, inklusive barn.
+
+## Ändringar
+
+Om policyn ändras publiceras den nya versionen på den här sidan med nytt datum.
+
+## Kontakt
+
+Frågor? Mejla [code@tilly.se](mailto:code@tilly.se).
+
+---
+
+[Follow The Tune]({{ '/' | relative_url }}) · [Support]({{ '/support/' | relative_url }})
