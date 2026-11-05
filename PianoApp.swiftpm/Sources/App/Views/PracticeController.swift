@@ -11,6 +11,7 @@ final class PracticeController {
 
     let stored: StoredSong
     let song: Song
+    let notation: Notation
     private(set) var config: PracticeConfig
 
     // Speglat från motorn för visning.
@@ -42,6 +43,7 @@ final class PracticeController {
     init(stored: StoredSong, song: Song, midi: MIDIManager, settings: AppSettings) {
         self.stored = stored
         self.song = song
+        self.notation = Notation(song: song)
         self.midi = midi
         self.settings = settings
 

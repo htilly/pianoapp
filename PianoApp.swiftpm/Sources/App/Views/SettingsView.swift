@@ -78,11 +78,14 @@ struct SettingsView: View {
                 }
 
                 Section("Visning") {
+                    Picker("Vid övning visas", selection: $settings.scoreDisplay) {
+                        ForEach(ScoreDisplay.allCases) { d in Text(d.label).tag(d) }
+                    }
                     Picker("Notnamn", selection: $settings.noteNaming) {
                         Text("Svenska (C D E F G A H)").tag(NoteNaming.swedish)
                         Text("Engelska (C D E F G A B)").tag(NoteNaming.english)
                     }
-                    Toggle("Visa notnamn på fallande noter", isOn: $settings.showNoteNames)
+                    Toggle("Visa notnamn på noterna", isOn: $settings.showNoteNames)
                     Toggle("Visa notnamn på tangenterna", isOn: $settings.showKeyLabels)
                     VStack(alignment: .leading) {
                         Text("Hur snabbt noterna faller: \(Int(settings.fallSpeed))")
