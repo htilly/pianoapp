@@ -1,0 +1,15 @@
+name: Tester
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kör tester för kärnan
+        working-directory: PianoApp.swiftpm
+        run: swift test

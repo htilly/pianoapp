@@ -1,0 +1,6 @@
+.build/
+.swiftpm/xcode/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+PianoApp.swiftpm/.build/
