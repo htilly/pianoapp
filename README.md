@@ -29,7 +29,14 @@ och lyssnar på vad som spelas.
 4. Tryck på ▶︎ *Kör*. Vill du ha appen som en egen ikon på hemskärmen: välj *Installera på enheten*
    / "Lägg till på hemskärmen" (kräver att du loggar in med ditt Apple-ID i Swift Playgrounds).
 
-Med Mac: öppna `PianoApp.swiftpm` i Xcode 15+ och kör på iPaden.
+## Köra från Xcode (Mac)
+
+1. Öppna **`Pianoskola.xcodeproj`** i Xcode 16 eller senare.
+2. Välj ditt team under *Signing & Capabilities* för målet **Pianoskola**.
+3. Välj din iPad som destination och tryck på ▶︎ *Run*.
+
+Projektet använder samma källkod som `PianoApp.swiftpm`, så nya filer i `Sources/App` kommer med automatiskt.
+Inställningar som bundle-id, version och behörigheter finns på två ställen: i `Package.swift` och i Xcode-projektet.
 
 ## Installera på iPhone
 
