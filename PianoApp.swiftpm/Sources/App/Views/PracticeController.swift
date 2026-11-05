@@ -26,6 +26,7 @@ final class PracticeController {
     private(set) var touchedKeys: Set<Int> = []
     /// A–B-loop som håller på att väljas.
     private(set) var loopStartCandidate: Double?
+    private(set) var isScrubbing = false
     var showResult = false
 
     @ObservationIgnored private let engine: PracticeEngine
@@ -34,6 +35,8 @@ final class PracticeController {
     @ObservationIgnored private let sound = SoundEngine.shared
     @ObservationIgnored private var link: CADisplayLink?
     @ObservationIgnored private var linkTarget: DisplayLinkTarget?
+    @ObservationIgnored private var resumeAfterScrub = false
+    @ObservationIgnored private var scrubAnchor: Double = 0
     @ObservationIgnored var onFinished: ((Score) -> Void)?
 
     init(stored: StoredSong, song: Song, midi: MIDIManager, settings: AppSettings) {
@@ -83,6 +86,8 @@ final class PracticeController {
     }
 
     func detach() {
+        isScrubbing = false
+        resumeAfterScrub = false
         play(engine.pause())
         link?.invalidate()
         link = nil
@@ -133,8 +138,44 @@ final class PracticeController {
     }
 
     func seek(to t: Double) {
-        play(engine.seek(to: t))
+        play(engine.seek(to: clampedToSong(t)))
         sync()
+    }
+
+    // MARK: - Spola
+
+    /// Låten står still medan man spolar och fortsätter när man släpper.
+    func beginScrub() {
+        guard !isScrubbing else { return }
+        isScrubbing = true
+        resumeAfterScrub = engine.isRunning
+        if engine.isRunning { play(engine.pause()) }
+        scrubAnchor = engine.time
+        sync()
+    }
+
+    func scrub(to t: Double) {
+        beginScrub()
+        seek(to: t)
+    }
+
+    /// Flyttar relativt positionen där spolningen började.
+    func scrub(by offset: Double) {
+        beginScrub()
+        seek(to: scrubAnchor + offset)
+    }
+
+    func endScrub() {
+        guard isScrubbing else { return }
+        isScrubbing = false
+        if resumeAfterScrub { play(engine.start(now: CACurrentMediaTime())) }
+        resumeAfterScrub = false
+        sync()
+    }
+
+    private func clampedToSong(_ t: Double) -> Double {
+        let range = config.loop ?? 0...max(0, song.duration)
+        return min(range.upperBound, max(range.lowerBound, t))
     }
 
     func updateConfig(_ change: (inout PracticeConfig) -> Void) {
@@ -191,7 +232,7 @@ final class PracticeController {
             playUserNote(pitch, velocity: velocity)
         }
         // Vänta-läget: första tangenttrycket startar låten.
-        if config.mode == .wait && !engine.isRunning && !engine.isFinished && !showResult {
+        if config.mode == .wait && !engine.isRunning && !engine.isFinished && !showResult && !isScrubbing {
             play(engine.start(now: CACurrentMediaTime()))
         }
         engine.keyDown(pitch)

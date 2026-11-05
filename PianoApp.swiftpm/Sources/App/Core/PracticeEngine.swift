@@ -177,9 +177,28 @@ public final class PracticeEngine {
     @discardableResult
     public func seek(to t: Double) -> [EngineEvent] {
         let ev = releaseAll()
-        seekInternal(to: max(0, t))
+        let target = max(0, t)
+        clearResults(from: target)
+        seekInternal(to: target)
         lastWall = nil
         return ev
+    }
+
+    /// Noter från `t` och framåt ska kunna spelas igen, utan att räknas dubbelt.
+    private func clearResults(from t: Double) {
+        for i in song.notes.indices where song.notes[i].start >= t - 1e-6 {
+            switch results[i] {
+            case .pending: continue
+            case .hit:
+                score.hits -= 1
+                score.streak = 0
+            case .missed:
+                score.misses -= 1
+            case .auto:
+                break
+            }
+            results[i] = .pending
+        }
     }
 
     // MARK: - Tid

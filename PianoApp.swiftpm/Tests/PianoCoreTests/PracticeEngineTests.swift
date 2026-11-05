@@ -195,6 +195,45 @@ final class PracticeEngineTests: XCTestCase {
         XCTAssertFalse(engine.isFinished)
     }
 
+    func testSeekBackLetsNotesBePlayedAgainWithoutDoubleCounting() throws {
+        let e = PracticeEngine(song: try makeSong(), config: config(.playAlong))
+        var clock = 0.0
+        e.start(now: clock)
+        e.keyDown(60)
+        e.keyUp(60)
+        e.keyDown(64)
+        e.keyUp(64)
+        XCTAssertEqual(e.score.hits, 2)
+        run(e, &clock, to: 1.5) // D (sekund 1) missas
+        XCTAssertEqual(e.score.misses, 1)
+
+        e.seek(to: 0)
+        XCTAssertEqual(e.score.hits, 0)
+        XCTAssertEqual(e.score.misses, 0)
+        XCTAssertEqual(e.score.streak, 0)
+        XCTAssertTrue(e.results.allSatisfy { $0 == .pending })
+
+        e.keyDown(60)
+        XCTAssertEqual(e.score.hits, 1)
+    }
+
+    func testSeekBackKeepsResultsBeforeTarget() throws {
+        let e = PracticeEngine(song: try makeSong(), config: config(.wait))
+        var clock = 0.0
+        e.start(now: clock)
+        e.keyDown(60)
+        e.keyDown(64)
+        run(e, &clock, to: 1.5) // väntar vid D
+        e.keyDown(62)
+        XCTAssertEqual(e.score.hits, 3)
+
+        e.seek(to: 0.5) // tillbaka till före D
+        XCTAssertEqual(e.score.hits, 2)
+        run(e, &clock, to: 2.5)
+        XCTAssertTrue(e.isWaiting)
+        XCTAssertEqual(e.time, 1, accuracy: 0.001)
+    }
+
     func testRestartResetsScore() throws {
         let engine = PracticeEngine(song: try makeSong(), config: config(.playAlong))
         var clock = 0.0

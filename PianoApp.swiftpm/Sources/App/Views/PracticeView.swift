@@ -28,6 +28,7 @@ struct PracticeView: View {
     @Environment(\.verticalSizeClass) private var vSize
     @State private var pulse = false
     @State private var hideRotateHint = false
+    @GestureState private var isDraggingNotes = false
 
     /// iPhone (eller smalt iPad-fönster): kompakt layout.
     private var isCompact: Bool { hSize == .compact || vSize == .compact }
@@ -85,6 +86,8 @@ struct PracticeView: View {
                             loopStartCandidate: controller.loopStartCandidate,
                             isWaiting: controller.isWaiting
                         )
+                        .contentShape(Rectangle())
+                        .gesture(notesScrubGesture)
                         statusOverlay
                     }
                     KeyboardView(
@@ -114,6 +117,9 @@ struct PracticeView: View {
             withAnimation(.easeInOut(duration: 0.5).repeatForever()) { pulse = true }
         }
         .onDisappear { controller.detach() }
+        .onChange(of: isDraggingNotes) { _, dragging in
+            if !dragging { controller.endScrub() }
+        }
         .sheet(isPresented: Binding(get: { controller.showResult }, set: { if !$0 { controller.restart() } })) {
             ResultView(
                 score: controller.score,
@@ -134,6 +140,16 @@ struct PracticeView: View {
     }
 
     // MARK: - Delar
+
+    /// Noterna följer fingret: dra uppåt för att spola tillbaka.
+    /// GestureState nollställs även om gesten avbryts, så att låten alltid fortsätter.
+    private var notesScrubGesture: some Gesture {
+        DragGesture(minimumDistance: 10)
+            .updating($isDraggingNotes) { _, state, _ in state = true }
+            .onChanged { value in
+                controller.scrub(by: value.translation.height / settings.fallSpeed)
+            }
+    }
 
     private var highlights: [Int: Color] {
         var out: [Int: Color] = [:]
@@ -384,7 +400,7 @@ struct PracticeView: View {
     @ViewBuilder
     private var statusOverlay: some View {
         VStack(spacing: 8) {
-            if !controller.isRunning && !controller.isFinished && controller.time <= 0.01 {
+            if !controller.isRunning && !controller.isFinished && !controller.isScrubbing && controller.time <= 0.01 {
                 VStack(spacing: 6) {
                     Text(controller.config.mode == .wait ? "Tryck på en lysande tangent för att börja!" : "Tryck på ▶ för att börja")
                         .font(isCompact ? .headline : .title2.bold())
@@ -435,30 +451,73 @@ struct PracticeView: View {
     }
 }
 
-/// Visar och flyttar positionen i låten.
+/// Visar och flyttar positionen i låten. Tryck eller dra var som helst på
+/// stapeln, även medan låten spelar.
 @MainActor
 private struct ProgressSlider: View {
     let controller: PracticeController
     var compact = false
+    @GestureState private var isDragging = false
 
     var body: some View {
         let duration = max(0.1, controller.song.duration)
+        let position = min(duration, max(0, controller.time))
         HStack(spacing: 10) {
             if !compact {
-                Text(format(max(0, controller.time)))
+                Text(format(position))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
-            Slider(value: Binding(
-                get: { min(duration, max(0, controller.time)) },
-                set: { controller.seek(to: $0) }
-            ), in: 0...duration)
-            .disabled(controller.isRunning)
-            .controlSize(compact ? .mini : .regular)
+            bar(position: position, duration: duration)
             if !compact {
                 Text(format(duration))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
+            }
+        }
+        .onChange(of: isDragging) { _, dragging in
+            if !dragging { controller.endScrub() }
+        }
+    }
+
+    private func bar(position: Double, duration: Double) -> some View {
+        GeometryReader { geo in
+            let width = max(1, geo.size.width)
+            let x = { (t: Double) in CGFloat(t / duration) * width }
+            let knob: CGFloat = isDragging ? 22 : 14
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.secondary.opacity(0.3)).frame(height: 6)
+                Capsule().fill(Color.accentColor).frame(width: x(position), height: 6)
+                if let loop = controller.config.loop {
+                    Rectangle()
+                        .fill(Color.yellow.opacity(0.7))
+                        .frame(width: max(2, x(loop.upperBound) - x(loop.lowerBound)), height: 6)
+                        .offset(x: x(loop.lowerBound))
+                }
+                Circle()
+                    .fill(Color.accentColor)
+                    .frame(width: knob, height: knob)
+                    .offset(x: x(position) - knob / 2)
+            }
+            .frame(maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .updating($isDragging) { _, state, _ in state = true }
+                    .onChanged { value in
+                        controller.scrub(to: Double(value.location.x / width) * duration)
+                    }
+            )
+        }
+        .frame(height: compact ? 24 : 32)
+        .accessibilityElement()
+        .accessibilityLabel("Position i låten")
+        .accessibilityValue(format(position))
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: controller.seek(to: position + 5)
+            case .decrement: controller.seek(to: position - 5)
+            @unknown default: break
             }
         }
     }
