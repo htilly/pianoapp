@@ -34,7 +34,7 @@ Parkoppla **inte** instrumentet under enhetens vanliga Bluetooth-inställningar.
 
 ### Hur lägger jag till låtar?
 
-1. Tryck på **Lägg till** i biblioteket
+1. Tryck på **Lägg till låt** (eller **+** på iPhone) i biblioteket
 2. Tryck på **Välj fil** för att hämta en fil från Filer, eller **Klistra in** för noter du har kopierat
 3. Kontrollera handfördelningen och tryck på **Spara**
 
@@ -86,7 +86,7 @@ Håll fingret på låten i biblioteket och välj **Ta bort**. Exempellåtar kan 
 
 1. Kontrollera att instrumentet är påslaget
 2. Koppla ur och anslut USB-kabeln igen
-3. Tryck på **Sök efter enheter igen** under **Inställningar** i appen
+3. Tryck på **Sök igen** under **Inställningar** i appen
 4. För Bluetooth: Har du parkopplat instrumentet i enhetens Bluetooth-inställningar, glöm det där och anslut via appen
 5. Starta om appen och enheten
 
