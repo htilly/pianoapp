@@ -23,6 +23,9 @@ public enum SongImportError: Error, Equatable, LocalizedError {
 /// Läser Standard MIDI Files (typ 0 och 1).
 public enum MIDIFileParser {
 
+    /// Längd i fjärdedelar för noter som saknar längd i filen.
+    private static let zeroLengthNoteBeats = 0.125
+
     public static func parse(_ data: Data, fallbackTitle: String = "MIDI-låt") throws -> Song {
         var r = ByteReader(bytes: [UInt8](data))
 
@@ -82,16 +85,27 @@ public enum MIDIFileParser {
             var tick = 0
             var runningStatus: UInt8 = 0
             var open: [Int: [OpenNote]] = [:] // (kanal<<8|tonhöjd) -> stack
+            // Note-off utan öppen not, per tangent: på vilket tick och hur många.
+            var strayOffs: [Int: (tick: Int, count: Int)] = [:]
+
+            func emit(_ on: OpenNote, channel: Int, pitch: Int, endTick: Int) {
+                let startBeat = Double(on.tick) / ticksPerQuarter
+                // Noter utan längd (t.ex. förslag) saknar egen tid i filen: visa dem som en 32-delsnot.
+                let dur = endTick > on.tick ? Double(endTick - on.tick) / ticksPerQuarter : zeroLengthNoteBeats
+                raw.append(RawNote(pitch: pitch, startBeat: startBeat, durationBeats: dur, velocity: on.velocity,
+                                   track: vIndex(track: trackIndex, channel: channel)))
+            }
 
             func close(channel: Int, pitch: Int, at tick: Int) {
                 let key = channel << 8 | pitch
-                guard var stack = open[key], !stack.isEmpty else { return }
+                guard var stack = open[key], !stack.isEmpty else {
+                    let count = strayOffs[key].flatMap { $0.tick == tick ? $0.count : nil } ?? 0
+                    strayOffs[key] = (tick, count + 1)
+                    return
+                }
                 let on = stack.removeFirst()
                 open[key] = stack
-                let startBeat = Double(on.tick) / ticksPerQuarter
-                let dur = Double(tick - on.tick) / ticksPerQuarter
-                raw.append(RawNote(pitch: pitch, startBeat: startBeat, durationBeats: dur, velocity: on.velocity,
-                                   track: vIndex(track: trackIndex, channel: channel)))
+                emit(on, channel: channel, pitch: pitch, endTick: tick)
             }
 
             while r.position < end {
@@ -143,7 +157,16 @@ public enum MIDIFileParser {
                         let velocity = Int(try r.u8() & 0x7F)
                         guard channel != 9 else { break } // trummor
                         if kind == 0x90 && velocity > 0 {
-                            open[channel << 8 | pitch, default: []].append(OpenNote(tick: tick, velocity: velocity))
+                            let key = channel << 8 | pitch
+                            let on = OpenNote(tick: tick, velocity: velocity)
+                            if let stray = strayOffs[key], stray.tick == tick, stray.count > 0 {
+                                // Note-off kom före sin note-on på samma tick: en not utan längd,
+                                // inte början på en lång not som hålls kvar till nästa note-off.
+                                strayOffs[key] = (tick, stray.count - 1)
+                                emit(on, channel: channel, pitch: pitch, endTick: tick)
+                            } else {
+                                open[key, default: []].append(on)
+                            }
                         } else {
                             close(channel: channel, pitch: pitch, at: tick)
                         }

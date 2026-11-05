@@ -250,6 +250,36 @@ final class MIDIParserTests: XCTestCase {
         XCTAssertEqual(applied.notes.first { $0.pitch == 48 }?.part, .left)
     }
 
+    func testNoteOffBeforeNoteOnOnSameTickIsAZeroLengthNote() throws {
+        // PPQ 480, 120 bpm: en fjärdedel = 0,5 s.
+        var track: [UInt8] = []
+        track += [0x00, 0x80, 70, 0, 0x00, 0x90, 70, 64]            // tick 0: förslag utan längd, off före on
+        track += [33, 0x90, 69, 64]                                 // tick 33: huvudnoten
+        track += [0x81, 0x4F, 0x80, 69, 0]                          // tick 240
+        track += [0x81, 0x70, 0x80, 70, 0, 0x00, 0x90, 70, 64]      // tick 480: nytt förslag
+        track += [0x00, 0x90, 60, 64]                               // tick 480: vanlig not
+        track += [0x83, 0x60, 0x80, 60, 0, 0x00, 0x90, 60, 64]      // tick 960: omslag, ska inte bli noll lång
+        track += [0x83, 0x60, 0x80, 60, 0]                          // tick 1440
+        track += [0x00, 0xFF, 0x2F, 0x00]
+
+        let header: [UInt8] = Array("MThd".utf8) + [0, 0, 0, 6, 0, 0, 0, 1, 0x01, 0xE0]
+        let length: [UInt8] = [0, 0, UInt8(track.count >> 8), UInt8(track.count & 0xFF)]
+        let song = try MIDIFileParser.parse(Data(header + Array("MTrk".utf8) + length + track))
+
+        XCTAssertEqual(song.notes.map(\.pitch), [70, 69, 60, 70, 60])
+        let expected: [(start: Double, duration: Double)] = [
+            (0, 0.0625),                    // förslaget blir kort, inte kvar till tick 480
+            (33.0 / 960, 207.0 / 960),
+            (0.5, 0.5),
+            (0.5, 0.0625),
+            (1.0, 0.5)
+        ]
+        for (note, want) in zip(song.notes, expected) {
+            XCTAssertEqual(note.start, want.start, accuracy: 1e-9)
+            XCTAssertEqual(note.duration, want.duration, accuracy: 1e-9)
+        }
+    }
+
     func testRejectsGarbage() {
         XCTAssertThrowsError(try MIDIFileParser.parse(Data("hej".utf8)))
         var truncated = Self.makeMIDI()
