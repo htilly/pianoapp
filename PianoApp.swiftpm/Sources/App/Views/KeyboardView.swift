@@ -31,6 +31,7 @@ struct KeyboardLayout {
         var hi = min(108, highest)
         if lo.isBlackKey { lo -= 1 }
         if hi.isBlackKey { hi += 1 }
+        if hi < lo + 12 { lo = min(lo, 96); hi = lo + 12 } // skydd mot konstiga omfång
         self.lowest = lo
         self.highest = hi
         self.width = width
@@ -53,7 +54,9 @@ struct KeyboardLayout {
         while hi - lo < 24 {
             if lo > 36 { lo -= 12 } else { hi += 12 }
         }
-        return (max(21, lo), min(108, hi))
+        lo = max(21, min(lo, 84))
+        hi = min(108, max(hi, lo + 24))
+        return (lo, hi)
     }
 
     var whiteWidth: CGFloat { width / CGFloat(whiteCount) }
