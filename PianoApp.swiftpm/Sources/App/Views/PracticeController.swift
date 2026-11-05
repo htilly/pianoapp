@@ -242,17 +242,22 @@ final class PracticeController {
         }
     }
 
-    /// Skärmtangenter låter alltid (det finns inget piano som låter av sig självt).
+    /// Skärmtangenter skickas till pianot bara om man uttryckligen valt det.
+    /// I läget Automatiskt låter de i iPaden även när ett piano är anslutet.
+    private var touchToPiano: Bool {
+        guard midi.canSend else { return false }
+        return settings.soundOutput == .piano || settings.soundOutput == .both
+    }
+
     private func playUserNote(_ pitch: Int, velocity: Int) {
-        if pianoOut && settings.soundOutput != .both {
-            midi.sendNoteOn(pitch, velocity: velocity)
-        } else {
+        if touchToPiano { midi.sendNoteOn(pitch, velocity: velocity) }
+        if !touchToPiano || settings.soundOutput == .both {
             sound.noteOn(pitch, velocity: velocity)
         }
     }
 
     private func stopUserNote(_ pitch: Int) {
-        if pianoOut { midi.sendNoteOff(pitch) }
+        if touchToPiano { midi.sendNoteOff(pitch) }
         sound.noteOff(pitch)
     }
 
