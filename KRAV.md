@@ -43,9 +43,14 @@ En app som lär en 11-åring spela piano. Pianot har MIDI över **Bluetooth** oc
   (standard ±180 ms, justerbar), annars miss.
 - **Lyssna**: appen spelar hela låten och visar tangenterna.
 - Välj hand: höger, vänster eller båda. Appen kan spela den andra handen ("Komp").
-- Tempo 25–150 %, metronom, A–B-loop vid taktstreck, positionsreglage.
+- Tempo 25–150 %, metronom, A–B-loop vid taktstreck, positionsreglage. Spola genom att dra i stapeln eller i noterna, även under spel.
 - Fallande noter (blå = höger hand, orange = vänster hand, grå = komp), taktnummer, notnamn.
 - Klaviatur lyser där man ska spela; grönt = rätt, rött = fel.
+- Notsystem: låten visas som riktiga noter (G- och F-klav, tonart, taktart, notvärden, pauser, förtecken,
+  balkar, bindebågar och trioler) som rullar förbi en spelmarkör, i samma färger som de fallande noterna.
+  Notnamn står vid noterna och kan slås av. Nedtryckta tangenter visas direkt i systemet: grönt = rätt, rött = fel.
+  Dra i sidled för att spola. Välj mellan noter och fallande, bara noter eller bara fallande. På liggande iPhone
+  får inte båda plats, och då visas fallande noter om man inte valt bara noter.
 - Poäng: rätt, missade, fel, svit i rad; 1–3 stjärnor (≥40 / 70 / 90 % träffsäkerhet).
   Bästa resultat och antal spelningar sparas per låt.
 
@@ -71,7 +76,8 @@ En app som lär en 11-åring spela piano. Pianot har MIDI över **Bluetooth** oc
 ## Kända begränsningar / möjliga förbättringar
 - iOS-koden är inte kompilerad i utvecklingsmiljön (saknar Apples SDK) – första bygget kan kräva små rättelser.
 - Skärmklaviaturen tar en tangent i taget (inga ackord på skärmen).
-- Ingen notvisning i notsystem (bara fallande noter).
+- Notbilden härleds ur tonerna, eftersom låtarna lagras utan notbild: tonarten gissas, rytmen avrundas till
+  sextondelar och trioler, och varje system visas enstämmigt. Upptakt känns inte igen, så takterna kan ligga förskjutna.
 - Fingersättning visas inte.
 - Ljudet i enheten är en enkel synt; en riktig pianoljudbank (SF2) vore bättre.
 - "Öppna i Pianoskola" från andra appar stöds inte; filer väljs inifrån appen.

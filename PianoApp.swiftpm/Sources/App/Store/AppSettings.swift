@@ -20,6 +20,31 @@ enum SoundOutput: String, CaseIterable, Identifiable {
     }
 }
 
+/// Vad övningsskärmen visar ovanför klaviaturen.
+enum ScoreDisplay: String, CaseIterable, Identifiable {
+    case both       // noter och fallande noter
+    case notes      // bara noter: träna på att läsa
+    case falling    // bara fallande noter
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .both: return "Noter och fallande"
+        case .notes: return "Bara noter"
+        case .falling: return "Bara fallande"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .both: return "square.split.1x2"
+        case .notes: return "music.quarternote.3"
+        case .falling: return "arrow.down.to.line"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class AppSettings {
@@ -27,6 +52,7 @@ final class AppSettings {
     var noteNaming: NoteNaming { didSet { save("noteNaming", noteNaming.rawValue) } }
     var showNoteNames: Bool { didSet { save("showNoteNames", showNoteNames) } }
     var showKeyLabels: Bool { didSet { save("showKeyLabels", showKeyLabels) } }
+    var scoreDisplay: ScoreDisplay { didSet { save("scoreDisplay", scoreDisplay.rawValue) } }
     /// Pixlar per sekund som noterna faller.
     var fallSpeed: Double { didSet { save("fallSpeed", fallSpeed) } }
     var hitWindow: Double { didSet { save("hitWindow", hitWindow) } }
@@ -39,6 +65,7 @@ final class AppSettings {
         noteNaming = NoteNaming(rawValue: d.string(forKey: "noteNaming") ?? "") ?? .swedish
         showNoteNames = d.object(forKey: "showNoteNames") as? Bool ?? true
         showKeyLabels = d.object(forKey: "showKeyLabels") as? Bool ?? true
+        scoreDisplay = ScoreDisplay(rawValue: d.string(forKey: "scoreDisplay") ?? "") ?? .both
         fallSpeed = d.object(forKey: "fallSpeed") as? Double ?? 160
         hitWindow = d.object(forKey: "hitWindow") as? Double ?? 0.18
         volume = d.object(forKey: "volume") as? Double ?? 0.8

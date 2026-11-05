@@ -28,6 +28,9 @@ struct PracticeView: View {
     @Environment(\.verticalSizeClass) private var vSize
     @State private var pulse = false
     @State private var hideRotateHint = false
+    @GestureState private var isDraggingNotes = false
+    /// Var i noterna (tick) en spolning i notsystemet började.
+    @State private var scoreDragAnchor: Double?
 
     /// iPhone (eller smalt iPad-fönster): kompakt layout.
     private var isCompact: Bool { hSize == .compact || vSize == .compact }
@@ -70,22 +73,24 @@ struct PracticeView: View {
                 let range = KeyboardLayout.range(for: song, width: geo.size.width)
                 let layout = KeyboardLayout(lowest: range.0, highest: range.1, width: geo.size.width)
                 let keyboardHeight = min(220, max(isCompact ? 80 : 120, geo.size.height * 0.28))
+                let available = geo.size.height - keyboardHeight
+                let display = effectiveDisplay(available: available)
                 VStack(spacing: 0) {
-                    ZStack(alignment: .top) {
-                        FallingNotesView(
-                            song: song,
-                            layout: layout,
-                            time: controller.time,
-                            results: controller.results,
-                            targets: controller.targets,
-                            pixelsPerSecond: settings.fallSpeed,
-                            naming: settings.noteNaming,
-                            showNames: settings.showNoteNames,
-                            loop: controller.config.loop,
-                            loopStartCandidate: controller.loopStartCandidate,
-                            isWaiting: controller.isWaiting
-                        )
-                        statusOverlay
+                    switch display {
+                    case .notes:
+                        ZStack(alignment: .bottom) {
+                            scoreView(height: available)
+                            statusOverlay.padding(.bottom, 12)
+                        }
+                        .frame(height: available)
+                    case .both:
+                        let scoreHeight = scoreHeight(available: available)
+                        scoreView(height: scoreHeight)
+                            .frame(height: scoreHeight)
+                        Rectangle().fill(.black.opacity(0.5)).frame(height: 1)
+                        fallingNotes(layout: layout)
+                    case .falling:
+                        fallingNotes(layout: layout)
                     }
                     KeyboardView(
                         layout: layout,
@@ -114,6 +119,12 @@ struct PracticeView: View {
             withAnimation(.easeInOut(duration: 0.5).repeatForever()) { pulse = true }
         }
         .onDisappear { controller.detach() }
+        .onChange(of: isDraggingNotes) { _, dragging in
+            if !dragging {
+                scoreDragAnchor = nil
+                controller.endScrub()
+            }
+        }
         .sheet(isPresented: Binding(get: { controller.showResult }, set: { if !$0 { controller.restart() } })) {
             ResultView(
                 score: controller.score,
@@ -134,6 +145,86 @@ struct PracticeView: View {
     }
 
     // MARK: - Delar
+
+    /// Minsta plats som de fallande noterna behöver bredvid notsystemet.
+    private static let minimumFallingHeight: CGFloat = 110
+
+    /// Får inte båda plats (liggande iPhone) visas de fallande noterna, som tidigare.
+    /// Bara noter går då fortfarande att välja i menyn.
+    private func effectiveDisplay(available: CGFloat) -> ScoreDisplay {
+        guard settings.scoreDisplay == .both else { return settings.scoreDisplay }
+        let needed = ScoreMetrics.minimumHeight(staves: controller.notation.clefs.count) + Self.minimumFallingHeight
+        return available >= needed ? .both : .falling
+    }
+
+    private func scoreHeight(available: CGFloat) -> CGFloat {
+        let staves = controller.notation.clefs.count
+        let comfortable = ScoreMetrics.unitsTall(staves: staves) * 11
+        return max(ScoreMetrics.minimumHeight(staves: staves),
+                   min(comfortable, available - Self.minimumFallingHeight, available * 0.6))
+    }
+
+    private func fallingNotes(layout: KeyboardLayout) -> some View {
+        ZStack(alignment: .top) {
+            FallingNotesView(
+                song: song,
+                layout: layout,
+                time: controller.time,
+                results: controller.results,
+                targets: controller.targets,
+                pixelsPerSecond: settings.fallSpeed,
+                naming: settings.noteNaming,
+                showNames: settings.showNoteNames,
+                loop: controller.config.loop,
+                loopStartCandidate: controller.loopStartCandidate,
+                isWaiting: controller.isWaiting
+            )
+            .contentShape(Rectangle())
+            .gesture(notesScrubGesture)
+            statusOverlay
+        }
+    }
+
+    private func scoreView(height: CGFloat) -> some View {
+        ScoreView(
+            notation: controller.notation,
+            time: controller.time,
+            results: controller.results,
+            targets: controller.targets,
+            held: controller.heldKeys,
+            naming: settings.noteNaming,
+            showNames: settings.showNoteNames,
+            loop: controller.config.loop,
+            loopStartCandidate: controller.loopStartCandidate,
+            isWaiting: controller.isWaiting,
+            isListening: controller.config.mode == .listen
+        )
+        .contentShape(Rectangle())
+        .gesture(scoreScrubGesture(height: height))
+    }
+
+    /// Noterna följer fingret i sidled: dra åt höger för att spola tillbaka.
+    private func scoreScrubGesture(height: CGFloat) -> some Gesture {
+        let notation = controller.notation
+        let perTick = ScoreMetrics(notation: notation, height: height).pointsPerTick
+        return DragGesture(minimumDistance: 10)
+            .updating($isDraggingNotes) { _, state, _ in state = true }
+            .onChanged { value in
+                let anchor = scoreDragAnchor ?? max(0, notation.tick(atTime: controller.time))
+                scoreDragAnchor = anchor
+                controller.scrub(to: notation.time(atTick: anchor - Double(value.translation.width / perTick)))
+            }
+    }
+
+    /// Noterna följer fingret: dra uppåt för att spola tillbaka.
+    /// GestureState nollställs även om gesten avbryts, så att låten alltid fortsätter.
+    private var notesScrubGesture: some Gesture {
+        DragGesture(minimumDistance: 10)
+            .updating($isDraggingNotes) { _, state, _ in state = true }
+            .onChanged { value in
+                controller.scrub(by: value.translation.height / settings.fallSpeed)
+            }
+    }
 
     private var highlights: [Int: Color] {
         var out: [Int: Color] = [:]
@@ -198,6 +289,8 @@ struct PracticeView: View {
                 }
 
                 Spacer(minLength: 8)
+
+                displayMenu
 
                 Toggle(isOn: metronomeBinding) {
                     Image(systemName: "metronome.fill")
@@ -283,6 +376,11 @@ struct PracticeView: View {
                         Toggle(isOn: accompanimentBinding) { Label("Komp (appen spelar andra handen)", systemImage: "music.note.list") }
                     }
                     Button { controller.loopButtonTapped() } label: { Label(loopLabel, systemImage: "repeat") }
+                    Picker("Visa", selection: displayBinding) {
+                        ForEach(ScoreDisplay.allCases) { d in
+                            Label(d.label, systemImage: d.systemImage).tag(d)
+                        }
+                    }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .font(.title3)
@@ -291,10 +389,36 @@ struct PracticeView: View {
 
                 Spacer(minLength: 4)
 
-                ScoreBadge(score: controller.score, mode: controller.config.mode, compact: true)
+                // Stående iPhone: raden är för smal för poängen, som hamnar under i stället.
+                if !isPortraitPhone {
+                    ScoreBadge(score: controller.score, mode: controller.config.mode, compact: true)
+                }
             }
-            ProgressSlider(controller: controller, compact: true)
+            HStack(spacing: 8) {
+                ProgressSlider(controller: controller, compact: true)
+                if isPortraitPhone {
+                    ScoreBadge(score: controller.score, mode: controller.config.mode, compact: true)
+                        .fixedSize()
+                }
+            }
         }
+    }
+
+    private var displayMenu: some View {
+        Menu {
+            Picker("Visa", selection: displayBinding) {
+                ForEach(ScoreDisplay.allCases) { d in
+                    Label(d.label, systemImage: d.systemImage).tag(d)
+                }
+            }
+        } label: {
+            Label("Visa", systemImage: settings.scoreDisplay.systemImage)
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var displayBinding: Binding<ScoreDisplay> {
+        Binding(get: { settings.scoreDisplay }, set: { settings.scoreDisplay = $0 })
     }
 
     private func chip(_ text: String, systemImage: String) -> some View {
@@ -384,7 +508,7 @@ struct PracticeView: View {
     @ViewBuilder
     private var statusOverlay: some View {
         VStack(spacing: 8) {
-            if !controller.isRunning && !controller.isFinished && controller.time <= 0.01 {
+            if !controller.isRunning && !controller.isFinished && !controller.isScrubbing && controller.time <= 0.01 {
                 VStack(spacing: 6) {
                     Text(controller.config.mode == .wait ? "Tryck på en lysande tangent för att börja!" : "Tryck på ▶ för att börja")
                         .font(isCompact ? .headline : .title2.bold())
@@ -413,6 +537,7 @@ struct PracticeView: View {
                 Text("\(Int(ceil(-controller.time / song.firstBeatInterval)))")
                     .font(.system(size: isCompact ? 50 : 80, weight: .heavy, design: .rounded))
                     .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.7), radius: 4)
                     .padding(.top, isCompact ? 10 : 40)
             }
             if controller.score.streak >= 10 && controller.config.mode != .listen {
@@ -435,30 +560,73 @@ struct PracticeView: View {
     }
 }
 
-/// Visar och flyttar positionen i låten.
+/// Visar och flyttar positionen i låten. Tryck eller dra var som helst på
+/// stapeln, även medan låten spelar.
 @MainActor
 private struct ProgressSlider: View {
     let controller: PracticeController
     var compact = false
+    @GestureState private var isDragging = false
 
     var body: some View {
         let duration = max(0.1, controller.song.duration)
+        let position = min(duration, max(0, controller.time))
         HStack(spacing: 10) {
             if !compact {
-                Text(format(max(0, controller.time)))
+                Text(format(position))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
-            Slider(value: Binding(
-                get: { min(duration, max(0, controller.time)) },
-                set: { controller.seek(to: $0) }
-            ), in: 0...duration)
-            .disabled(controller.isRunning)
-            .controlSize(compact ? .mini : .regular)
+            bar(position: position, duration: duration)
             if !compact {
                 Text(format(duration))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
+            }
+        }
+        .onChange(of: isDragging) { _, dragging in
+            if !dragging { controller.endScrub() }
+        }
+    }
+
+    private func bar(position: Double, duration: Double) -> some View {
+        GeometryReader { geo in
+            let width = max(1, geo.size.width)
+            let x = { (t: Double) in CGFloat(t / duration) * width }
+            let knob: CGFloat = isDragging ? 22 : 14
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.secondary.opacity(0.3)).frame(height: 6)
+                Capsule().fill(Color.accentColor).frame(width: x(position), height: 6)
+                if let loop = controller.config.loop {
+                    Rectangle()
+                        .fill(Color.yellow.opacity(0.7))
+                        .frame(width: max(2, x(loop.upperBound) - x(loop.lowerBound)), height: 6)
+                        .offset(x: x(loop.lowerBound))
+                }
+                Circle()
+                    .fill(Color.accentColor)
+                    .frame(width: knob, height: knob)
+                    .offset(x: x(position) - knob / 2)
+            }
+            .frame(maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .updating($isDragging) { _, state, _ in state = true }
+                    .onChanged { value in
+                        controller.scrub(to: Double(value.location.x / width) * duration)
+                    }
+            )
+        }
+        .frame(height: compact ? 24 : 32)
+        .accessibilityElement()
+        .accessibilityLabel("Position i låten")
+        .accessibilityValue(format(position))
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: controller.seek(to: position + 5)
+            case .decrement: controller.seek(to: position - 5)
+            @unknown default: break
             }
         }
     }

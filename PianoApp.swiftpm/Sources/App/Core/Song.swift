@@ -90,6 +90,13 @@ public struct TempoMap: Codable, Hashable, Sendable {
         while i > 0 && events[i].beat > beat { i -= 1 }
         return startSeconds[i] + (beat - events[i].beat) * 60.0 / events[i].bpm
     }
+
+    /// Omvändningen av `seconds(atBeat:)`.
+    public func beat(atSeconds seconds: Double) -> Double {
+        var i = events.count - 1
+        while i > 0 && startSeconds[i] > seconds { i -= 1 }
+        return events[i].beat + (seconds - startSeconds[i]) * events[i].bpm / 60.0
+    }
 }
 
 /// En färdigtolkad låt.
@@ -218,6 +225,21 @@ public enum NoteNaming: String, Codable, CaseIterable, Sendable {
         let pc = ((pitch % 12) + 12) % 12
         let base = self == .swedish ? sv[pc] : en[pc]
         return withOctave ? "\(base)\(pitch / 12 - 1)" : base
+    }
+
+    /// Namn för en ton så som den står i noterna, t.ex. Eb i stället för D#.
+    public func name(for spelled: SpelledPitch) -> String {
+        let letters = ["C", "D", "E", "F", "G", "A", "B"]
+        if self == .swedish && spelled.letter == 6 {
+            // Svenska: H är stamtonen och B är den sänkta tonen.
+            switch spelled.alter {
+            case 0: return "H"
+            case -1: return "B"
+            default: return "H♯"
+            }
+        }
+        let suffix = spelled.alter > 0 ? "♯" : spelled.alter < 0 ? "♭" : ""
+        return letters[spelled.letter] + suffix
     }
 }
 
