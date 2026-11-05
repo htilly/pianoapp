@@ -208,3 +208,31 @@ final class PracticeEngineTests: XCTestCase {
         XCTAssertFalse(engine.isRunning)
     }
 }
+
+final class KeyboardRangeTests: XCTestCase {
+
+    func testWideScreenKeepsWholeSong() {
+        let (lo, hi) = KeyboardRange.fit(lowest: 45, highest: 79)
+        XCTAssertLessThanOrEqual(lo, 45)
+        XCTAssertGreaterThanOrEqual(hi, 79)
+        XCTAssertEqual(lo % 12, 0)
+        XCTAssertGreaterThanOrEqual(hi - lo, 24)
+    }
+
+    func testNarrowScreenClipsAroundFocus() {
+        let (lo, hi) = KeyboardRange.fit(lowest: 36, highest: 96, focus: 72, maxWhiteKeys: 15)
+        XCTAssertLessThanOrEqual(KeyboardRange.whiteKeyCount(lo, hi), 15)
+        XCTAssertTrue((lo...hi).contains(72))
+        XCTAssertFalse(lo.isBlackKey)
+        XCTAssertFalse(hi.isBlackKey)
+    }
+
+    func testExtremeRangesNeverInvert() {
+        for (a, b) in [(0, 5), (120, 127), (21, 108), (60, 60)] {
+            let (lo, hi) = KeyboardRange.fit(lowest: a, highest: b, maxWhiteKeys: 10)
+            XCTAssertLessThan(lo, hi)
+            XCTAssertGreaterThanOrEqual(lo, 21)
+            XCTAssertLessThanOrEqual(hi, 108)
+        }
+    }
+}

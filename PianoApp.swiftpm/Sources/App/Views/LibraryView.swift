@@ -13,14 +13,19 @@ struct LibraryView: View {
     @State private var newName = ""
     @State private var path: [StoredSong] = []
 
-    private let columns = [GridItem(.adaptive(minimum: 250), spacing: 16)]
+    @Environment(\.horizontalSizeClass) private var hSize
+
+    private var compact: Bool { hSize == .compact }
+    private var columns: [GridItem] {
+        [GridItem(.adaptive(minimum: compact ? 150 : 250), spacing: compact ? 10 : 16)]
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     header
-                    LazyVGrid(columns: columns, spacing: 16) {
+                    LazyVGrid(columns: columns, spacing: compact ? 10 : 16) {
                         ForEach(store.songs) { song in
                             NavigationLink(value: song) {
                                 SongCard(song: song)
@@ -39,7 +44,8 @@ struct LibraryView: View {
                                 Text("Klistra in ABC-noter eller välj en MIDI-fil")
                                     .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             }
-                            .frame(maxWidth: .infinity, minHeight: 150)
+                            .padding(8)
+                            .frame(maxWidth: .infinity, minHeight: compact ? 120 : 150)
                             .background(RoundedRectangle(cornerRadius: 18).strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8, 6])).foregroundStyle(.tint))
                         }
                         .buttonStyle(.plain)
@@ -53,7 +59,7 @@ struct LibraryView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { showSettings = true } label: { MIDIStatusBadge() }
+                    Button { showSettings = true } label: { MIDIStatusBadge(compact: compact) }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showImport = true } label: { Label("Lägg till", systemImage: "plus") }
@@ -117,13 +123,15 @@ struct SongCard: View {
                     }
                 }
                 .font(.caption)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .foregroundStyle(.secondary)
             } else {
                 Text("Kunde inte läsa noterna").font(.caption).foregroundStyle(.red)
             }
         }
         .padding()
-        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
         .background(RoundedRectangle(cornerRadius: 18).fill(Color(.secondarySystemBackground)))
         .contentShape(RoundedRectangle(cornerRadius: 18))
     }
@@ -144,15 +152,19 @@ struct SongCard: View {
 /// Liten indikator: är pianot anslutet?
 struct MIDIStatusBadge: View {
     @Environment(MIDIManager.self) private var midi
+    /// Bara en prick (för smala skärmar).
+    var compact = false
 
     var body: some View {
         HStack(spacing: 6) {
             Circle()
                 .fill(midi.isConnected ? Color.green : Color.gray)
                 .frame(width: 10, height: 10)
-            Text(midi.isConnected ? (midi.sources.first?.name ?? "Piano") : "Inget piano")
-                .font(.subheadline)
-                .lineLimit(1)
+            if !compact {
+                Text(midi.isConnected ? (midi.sources.first?.name ?? "Piano") : "Inget piano")
+                    .font(.subheadline)
+                    .lineLimit(1)
+            }
         }
     }
 }

@@ -46,17 +46,11 @@ struct KeyboardLayout {
     }
 
     /// Omfång som passar en låt: hela oktaver, minst två.
-    static func range(for song: Song) -> (Int, Int) {
-        var lo = song.lowestPitch - 2
-        var hi = song.highestPitch + 2
-        lo -= ((lo % 12) + 12) % 12          // ner till C
-        hi += 12 - (((hi % 12) + 12) % 12)   // upp till nästa C
-        while hi - lo < 24 {
-            if lo > 36 { lo -= 12 } else { hi += 12 }
-        }
-        lo = max(21, min(lo, 84))
-        hi = min(108, max(hi, lo + 24))
-        return (lo, hi)
+    /// Omfång som passar en låt och skärmbredden (vita tangenter minst ~16 pt breda).
+    static func range(for song: Song, width: CGFloat) -> (Int, Int) {
+        let maxWhite = max(8, Int(width / 16))
+        let focus = song.notes.isEmpty ? 60 : song.notes.map(\.pitch).reduce(0, +) / song.notes.count
+        return KeyboardRange.fit(lowest: song.lowestPitch, highest: song.highestPitch, focus: focus, maxWhiteKeys: maxWhite)
     }
 
     var whiteWidth: CGFloat { width / CGFloat(whiteCount) }

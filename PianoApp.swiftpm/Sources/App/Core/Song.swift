@@ -224,3 +224,37 @@ public enum NoteNaming: String, Codable, CaseIterable, Sendable {
 public extension Int {
     var isBlackKey: Bool { [1, 3, 6, 8, 10].contains(((self % 12) + 12) % 12) }
 }
+
+/// Väljer vilket tonomfång klaviaturen ska visa.
+public enum KeyboardRange {
+
+    /// Antal vita tangenter i ett omfång (inklusive ändarna).
+    public static func whiteKeyCount(_ lo: Int, _ hi: Int) -> Int {
+        guard lo <= hi else { return 0 }
+        return (lo...hi).filter { !$0.isBlackKey }.count
+    }
+
+    /// Omfång som passar en låt: hela oktaver, minst två, inom 88 tangenter.
+    /// Ryms det inte (`maxWhiteKeys`, t.ex. på en smal iPhone) kortas det runt `focus`.
+    public static func fit(lowest: Int, highest: Int, focus: Int? = nil, maxWhiteKeys: Int = 52) -> (Int, Int) {
+        var lo = lowest - 2
+        var hi = highest + 2
+        lo -= ((lo % 12) + 12) % 12          // ner till C
+        hi += 12 - (((hi % 12) + 12) % 12)   // upp till nästa C
+        while hi - lo < 24 {
+            if lo > 36 { lo -= 12 } else { hi += 12 }
+        }
+        lo = max(21, min(lo, 84))
+        hi = min(108, max(hi, lo + 24))
+
+        let limit = max(8, maxWhiteKeys)
+        let center = focus ?? (lowest + highest) / 2
+        while whiteKeyCount(lo, hi) > limit {
+            // Ta bort från den sida som ligger längst från fokus.
+            if center - lo > hi - center { lo += 1 } else { hi -= 1 }
+            while lo.isBlackKey { lo += 1 }
+            while hi.isBlackKey { hi -= 1 }
+        }
+        return (lo, hi)
+    }
+}

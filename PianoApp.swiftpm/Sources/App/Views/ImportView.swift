@@ -13,6 +13,7 @@ struct ImportView: View {
     @State private var error: String?
     @State private var showFilePicker = false
     @State private var showHelp = false
+    @Environment(\.horizontalSizeClass) private var hSize
 
     private var fileTypes: [UTType] {
         var t: [UTType] = [.midi, .plainText, .text]
@@ -80,9 +81,21 @@ struct ImportView: View {
                     .font(.system(.body, design: .monospaced))
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
-                    .frame(minHeight: 260)
+                    .frame(minHeight: hSize == .compact ? 180 : 260)
             }
-            HStack {
+            ViewThatFits(in: .horizontal) {
+                HStack { importButtons(spacer: true) }
+                VStack(alignment: .leading, spacing: 10) { importButtons(spacer: false) }
+            }
+        } header: {
+            Text("Noter")
+        } footer: {
+            Text("Gratis ABC-låtar finns t.ex. på abcnotation.com. MIDI-filer kan laddas ner från t.ex. musescore.com eller bitmidi.com. Du kan också be en AI-assistent skriva en låt i ABC-notation.")
+        }
+    }
+
+    @ViewBuilder
+    private func importButtons(spacer: Bool) -> some View {
                 Button {
                     if let s = UIPasteboard.general.string {
                         text = s
@@ -102,17 +115,11 @@ struct ImportView: View {
                 }
                 .buttonStyle(.bordered)
 
-                Spacer()
+                if spacer { Spacer() }
 
                 Button("Läs in") { parseText() }
                     .buttonStyle(.borderedProminent)
                     .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        } header: {
-            Text("Noter")
-        } footer: {
-            Text("Gratis ABC-låtar finns t.ex. på abcnotation.com. MIDI-filer kan laddas ner från t.ex. musescore.com eller bitmidi.com. Du kan också be en AI-assistent skriva en låt i ABC-notation.")
-        }
     }
 
     @ViewBuilder

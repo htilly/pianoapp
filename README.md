@@ -1,6 +1,6 @@
 # 🎹 Pianoskola
 
-En iPad-app som lär barn spela piano. Appen ansluts till ett digitalpiano via
+En app för iPad och iPhone som lär barn spela piano. Appen ansluts till ett digitalpiano via
 **MIDI över USB eller Bluetooth**, visar noterna som faller ner mot en klaviatur,
 och lyssnar på vad som spelas.
 
@@ -31,11 +31,28 @@ och lyssnar på vad som spelas.
 
 Med Mac: öppna `PianoApp.swiftpm` i Xcode 15+ och kör på iPaden.
 
+## Installera på iPhone
+
+Swift Playgrounds finns inte för iPhone, så här behövs en Mac:
+
+- **Xcode (gratis):** öppna `PianoApp.swiftpm` i Xcode, koppla in iPhonen, välj den som mål,
+  logga in med ditt Apple-ID under *Signing & Capabilities* och tryck ▶︎. Med ett gratis Apple-ID
+  måste appen installeras om var 7:e dag.
+- **Betalt utvecklarkonto:** ladda upp från Xcode eller Swift Playgrounds på Mac till TestFlight –
+  då kan appen installeras på alla familjens enheter och håller i 90 dagar per version.
+
+På iPhone fungerar appen bäst i **liggande läge** (större tangenter). Kontrollerna samlas då i en
+kompakt rad med menyer för läge, hand och tempo, och under ⋯ finns metronom, komp och loop.
+Klaviaturen visar så många tangenter som ryms och centreras på låtens toner.
+
+Anslutning: iPhone 15 och senare har USB-C – en vanlig USB-kabel till pianot räcker. Äldre
+iPhone behöver Apples *Lightning-till-USB 3-kameraadapter*. Bluetooth-MIDI fungerar som på iPaden.
+
 ## Ansluta pianot
 
 **USB (enklast, ingen fördröjning):** koppla pianots USB-port (*USB to Host*) till iPaden med en USB-kabel.
 iPad med USB-C: vanlig USB-A→USB-C eller USB-B→USB-C-kabel. Äldre iPad med Lightning:
-Apples *Lightning-till-USB 3-kameraadapter*. Pianot dyker upp automatiskt.
+Apples *Lightning-till-USB 3-kameraadapter*. Pianot dyker upp automatiskt. Samma sak gäller iPhone.
 
 **Bluetooth:** slå på Bluetooth-MIDI på pianot och tryck på **⚙︎ → Anslut Bluetooth-piano** i appen.
 Parkoppla *inte* pianot under iPadens vanliga Bluetooth-inställningar – MIDI-anslutningen görs inifrån appen.

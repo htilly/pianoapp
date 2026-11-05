@@ -8,56 +8,70 @@ struct ResultView: View {
     var onSlower: () -> Void
     var onDone: () -> Void
 
+    @Environment(\.horizontalSizeClass) private var hSize
+    @Environment(\.verticalSizeClass) private var vSize
+    private var compact: Bool { hSize == .compact || vSize == .compact }
+
     var body: some View {
-        VStack(spacing: 22) {
-            Text(headline)
-                .font(.system(size: 40, weight: .heavy, design: .rounded))
-                .multilineTextAlignment(.center)
-            Text(title)
-                .font(.title3)
-                .foregroundStyle(.secondary)
-
-            if score.mode != .listen {
-                StarsView(stars: score.stars, size: 54)
-
-                HStack(spacing: 28) {
-                    stat("\(Int((score.accuracy * 100).rounded())) %", "Träffsäkerhet")
-                    stat("\(score.hits)", "Rätt")
-                    if score.mode == .playAlong { stat("\(score.misses)", "Missade") }
-                    stat("\(score.wrong)", "Fel tangent")
-                    stat("\(score.bestStreak)", "Bästa svit")
-                }
-
-                Text(tip)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(spacing: compact ? 12 : 22) {
+                Text(headline)
+                    .font(.system(size: compact ? 28 : 40, weight: .heavy, design: .rounded))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
+                Text(title)
+                    .font(compact ? .headline : .title3)
+                    .foregroundStyle(.secondary)
 
-            HStack(spacing: 16) {
-                Button(action: onAgain) {
-                    Label("Spela igen", systemImage: "arrow.counterclockwise")
-                        .font(.title3.bold()).padding(.horizontal, 8).padding(.vertical, 4)
-                }
-                .buttonStyle(.borderedProminent)
+                if score.mode != .listen {
+                    StarsView(stars: score.stars, size: compact ? 36 : 54)
 
-                if score.mode != .listen && score.stars < 3 && speed > 0.3 {
-                    Button(action: onSlower) {
-                        Label("Lite långsammare", systemImage: "tortoise.fill")
-                            .font(.title3).padding(.horizontal, 8).padding(.vertical, 4)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 12)], spacing: 12) {
+                        stat("\(Int((score.accuracy * 100).rounded())) %", "Träffsäkerhet")
+                        stat("\(score.hits)", "Rätt")
+                        if score.mode == .playAlong { stat("\(score.misses)", "Missade") }
+                        stat("\(score.wrong)", "Fel tangent")
+                        stat("\(score.bestStreak)", "Bästa svit")
                     }
-                    .buttonStyle(.bordered)
+                    .frame(maxWidth: 560)
+
+                    Text(tip)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
 
-                Button(action: onDone) {
-                    Label("Välj ny låt", systemImage: "music.note.list")
-                        .font(.title3).padding(.horizontal, 8).padding(.vertical, 4)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 16) { buttons }
+                    VStack(spacing: 10) { buttons }
                 }
-                .buttonStyle(.bordered)
             }
+            .padding(compact ? 16 : 30)
+            .frame(maxWidth: .infinity)
         }
-        .padding(30)
+    }
+
+    @ViewBuilder
+    private var buttons: some View {
+        Button(action: onAgain) {
+            Label("Spela igen", systemImage: "arrow.counterclockwise")
+                .font(.title3.bold()).padding(.horizontal, 8).padding(.vertical, 4)
+        }
+        .buttonStyle(.borderedProminent)
+
+        if score.mode != .listen && score.stars < 3 && speed > 0.3 {
+            Button(action: onSlower) {
+                Label("Lite långsammare", systemImage: "tortoise.fill")
+                    .font(.title3).padding(.horizontal, 8).padding(.vertical, 4)
+            }
+            .buttonStyle(.bordered)
+        }
+
+        Button(action: onDone) {
+            Label("Välj ny låt", systemImage: "music.note.list")
+                .font(.title3).padding(.horizontal, 8).padding(.vertical, 4)
+        }
+        .buttonStyle(.bordered)
     }
 
     private var headline: String {
