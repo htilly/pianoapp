@@ -42,9 +42,14 @@ final class SongStore {
 
     /// Låten utan handfördelning (alla spår).
     func baseSong(for stored: StoredSong) throws -> Song {
-        if let s = cache[stored.id] { return s }
-        let s = try SongImporter.parse(format: stored.format, source: stored.source, title: stored.title)
+        // Namnet i biblioteket gäller, inte det som råkar stå i filen.
+        if var s = cache[stored.id] {
+            s.title = stored.title
+            return s
+        }
+        var s = try SongImporter.parse(format: stored.format, source: stored.source, title: stored.title)
         cache[stored.id] = s
+        s.title = stored.title
         return s
     }
 
@@ -136,6 +141,32 @@ final class SongStore {
             songs.insert(s, at: min(i, songs.count))
             changed = true
         }
+        if addLocalExamples(hidden: hidden) { changed = true }
         if changed { save() }
+    }
+
+    /// MIDI-filer från den git-ignorerade mappen LocalExamples, som Xcode lägger i appen.
+    private func addLocalExamples(hidden: Set<String>) -> Bool {
+        let urls = Bundle.main.urls(forResourcesWithExtension: "mid", subdirectory: nil) ?? []
+        var changed = false
+        for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+            let name = url.deletingPathExtension().lastPathComponent
+            let id = "local.\(name)"
+            guard !hidden.contains(id),
+                  let data = try? Data(contentsOf: url),
+                  let imported = try? SongImporter.importMIDI(data, title: name) else { continue }
+            if let existing = songs.firstIndex(where: { $0.id == id }) {
+                if songs[existing].source != imported.source {
+                    songs[existing].source = imported.source
+                    cache[id] = nil
+                    changed = true
+                }
+                continue
+            }
+            let s = StoredSong(id: id, title: name, format: .midi, source: imported.source, isExample: true)
+            songs.insert(s, at: firstUserIndex)
+            changed = true
+        }
+        return changed
     }
 }

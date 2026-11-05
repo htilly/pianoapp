@@ -17,6 +17,12 @@
 			path = PianoApp.swiftpm/Sources/App;
 			sourceTree = "<group>";
 		};
+		A10000000000000000000010 /* LocalExamples */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = LocalExamples;
+			path = PianoApp.swiftpm/LocalExamples;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +40,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000002 /* App */,
+				A10000000000000000000010 /* LocalExamples */,
 				A10000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,6 +70,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A10000000000000000000002 /* App */,
+				A10000000000000000000010 /* LocalExamples */,
 			);
 			name = Pianoskola;
 			packageProductDependencies = (

@@ -1,0 +1,3 @@
+# Egna MIDI-filer som visas som exempel i appen men aldrig hamnar i git.
+*
+!.gitignore
