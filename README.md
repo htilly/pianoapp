@@ -19,6 +19,7 @@ och lyssnar på vad som spelas.
   - Välj vilken hand varje spår/stämma ska spelas med, eller dela ett spår vid mitt-C.
 - Svenska notnamn (C D E F G A **H**) eller engelska.
 - Skärmklaviatur, så det går att testa utan piano.
+- **Lyssna med mikrofon** – inget MIDI-piano? Tryck på mikrofonknappen uppe till höger i övningsskärmen så lyssnar appen på ett vanligt piano och hör vilka toner du spelar (enstaka toner och ackord, ca C3–C7). Appen är tyst medan mikrofonen lyssnar, annars skulle den höra sig själv. Två toner som ligger ett halvt tonsteg från varandra kan bli svåra att skilja åt.
 - Inbyggda övningslåtar: C-durskala, Blinka lilla stjärna, Mary Had a Little Lamb, Glädjens sång, Jingle Bells och början av Für Elise.
 
 ## Installera på iPaden (ingen Mac behövs)

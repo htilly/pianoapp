@@ -21,9 +21,9 @@ let package = Package(
             name: "Pianoskola",
             targets: ["AppModule"],
             bundleIdentifier: "nu.tilly.pianoskola",
-            displayVersion: "1.0",
-            bundleVersion: "1",
-            appIcon: .placeholder(icon: .star),
+            displayVersion: "2.0.0",
+            bundleVersion: "20261114",
+            appIcon: .asset("AppIcon"),
             accentColor: .presetColor(.blue),
             supportedDeviceFamilies: [
                 .pad,
@@ -36,7 +36,8 @@ let package = Package(
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
-                .bluetoothAlways(purposeString: "Pianoskola använder Bluetooth för att ansluta till ditt MIDI-piano.")
+                .bluetoothAlways(purposeString: "Pianoskola använder Bluetooth för att ansluta till ditt MIDI-piano."),
+                .microphone(purposeString: "Pianoskola lyssnar med mikrofonen på ditt piano för att höra vilka toner du spelar. Ljudet sparas eller skickas aldrig.")
             ],
             appCategory: .education
         )

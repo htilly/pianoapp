@@ -105,9 +105,15 @@ struct PracticeView: View {
         .navigationTitle(song.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                micButton
                 MIDIStatusBadge(compact: isCompact)
             }
+        }
+        .alert(micAlertTitle, isPresented: micAlertBinding) {
+            Button("OK", role: .cancel) { controller.mic.stop() }
+        } message: {
+            Text(micAlertMessage)
         }
         .onAppear {
             controller.attach()
@@ -130,6 +136,57 @@ struct PracticeView: View {
                 }
             )
             .presentationDetents([.medium, .large])
+        }
+    }
+
+    // MARK: - Mikrofon
+
+    /// Lyssna på ett vanligt piano med mikrofonen (när man inte har MIDI).
+    private var micButton: some View {
+        let mic = controller.mic
+        return Button {
+            controller.toggleMic()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: mic.isOn ? "mic.fill" : "mic.slash")
+                if mic.state == .listening {
+                    Capsule()
+                        .fill(Color.green)
+                        .frame(width: 6 + 26 * mic.level, height: 6)
+                        .animation(.easeOut(duration: 0.1), value: mic.level)
+                } else if !isCompact {
+                    Text("Lyssna med mikrofon").font(.subheadline)
+                }
+            }
+        }
+        .tint(mic.isOn ? .green : nil)
+        .accessibilityLabel(mic.isOn ? "Stäng av mikrofonen" : "Lyssna på pianot med mikrofonen")
+    }
+
+    private var micAlertBinding: Binding<Bool> {
+        Binding(
+            get: {
+                switch controller.mic.state {
+                case .denied, .failed: return true
+                default: return false
+                }
+            },
+            set: { _ in }
+        )
+    }
+
+    private var micAlertTitle: String {
+        controller.mic.state == .denied ? "Mikrofonen är avstängd" : "Kunde inte lyssna"
+    }
+
+    private var micAlertMessage: String {
+        switch controller.mic.state {
+        case .denied:
+            return "Tillåt mikrofonen för appen under Inställningar > Integritet och säkerhet > Mikrofon om du vill att appen ska lyssna på pianot. Du kan alltid använda skärmklaviaturen eller ett MIDI-piano i stället."
+        case let .failed(message):
+            return message
+        default:
+            return ""
         }
     }
 
