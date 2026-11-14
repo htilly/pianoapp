@@ -34,6 +34,8 @@ final class PracticeController {
     @ObservationIgnored private let midi: MIDIManager
     @ObservationIgnored private let settings: AppSettings
     @ObservationIgnored private let sound = SoundEngine.shared
+    /// Lyssnar på ett akustiskt piano via mikrofonen (alternativ till MIDI).
+    let mic = MicListener()
     @ObservationIgnored private var link: CADisplayLink?
     @ObservationIgnored private var linkTarget: DisplayLinkTarget?
     @ObservationIgnored private var resumeAfterScrub = false
@@ -78,6 +80,14 @@ final class PracticeController {
             guard let self else { return }
             if down { self.keyDown(pitch, velocity: velocity, fromTouch: false) } else { self.keyUp(pitch, fromTouch: false) }
         }
+        mic.onNote = { [weak self] pitch, down in
+            guard let self else { return }
+            // I Lyssna-läget spelar appen själv: mikrofonen ska inte tolka det som tryck.
+            guard self.config.mode != .listen else { return }
+            // Skärmtangenter hör mikrofonen också – räkna dem inte två gånger.
+            guard !self.touchedKeys.contains(pitch) else { return }
+            if down { self.keyDown(pitch, velocity: 90, fromTouch: false) } else { self.keyUp(pitch, fromTouch: false) }
+        }
         let target = DisplayLinkTarget { [weak self] in self?.tick() }
         let l = CADisplayLink(target: target, selector: #selector(DisplayLinkTarget.step))
         l.preferredFrameRateRange = CAFrameRateRange(minimum: 30, maximum: 120, preferred: 60)
@@ -95,6 +105,8 @@ final class PracticeController {
         link = nil
         linkTarget = nil
         midi.onNote = nil
+        mic.onNote = nil
+        mic.stop()
         stopAllSound()
         UIApplication.shared.isIdleTimerDisabled = false
         sync()
@@ -119,6 +131,22 @@ final class PracticeController {
         heldKeys = engine.heldKeys
         highlighted = engine.highlightedNotes
         results = engine.results
+    }
+
+    // MARK: - Mikrofon
+
+    /// Mikrofonen lyssnar och appen är tyst (annars hör mikrofonen appen själv).
+    private var micMutesApp: Bool { mic.isOn && config.mode != .listen }
+
+    func toggleMic() {
+        if mic.isOn {
+            mic.stop()
+            stopAllSound()
+        } else {
+            // Stäng av appens egna toner som redan klingar, så de inte tolkas som tryck.
+            stopAllSound()
+            Task { await mic.start() }
+        }
     }
 
     // MARK: - Kontroller
@@ -268,7 +296,10 @@ final class PracticeController {
     }
 
     private func play(_ events: [EngineEvent]) {
+        let muted = micMutesApp
         for e in events {
+            // Mikrofonen lyssnar: appen är tyst (bara slutet av låten ska fortfarande hanteras).
+            if muted && e != .finished { continue }
             switch e {
             case let .noteOn(p, v):
                 if pianoOut { midi.sendNoteOn(p, velocity: v) }
